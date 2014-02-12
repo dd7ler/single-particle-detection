@@ -48,7 +48,7 @@ postAalignIm(post>bright_thresh) = median_scale;
 
 % Align images, get transform between them
 [deltax, theta, composite, q] = alignImages(preAalignIm, postAalignIm, theta_range);
-figure; plot(theta_range,q);
+% figure; plot(theta_range,q);
 progressbar([],[],1/10);
 comp = uint16(imrescale(composite,2^16));
 
@@ -126,7 +126,7 @@ vecs = postxy(pairs(:,1),:)- prexy(pairs(:,2),:);
 
 progressbar([],[],7/10);
 % Show scatterplot of displacement vectors, and the distinct cluster of matching particles
-figure; plot(vecs(:,1),vecs(:,2),'*k');
+% figure; plot(vecs(:,1),vecs(:,2),'*k');
 
 % Use mean-shift clustering to find the cluster of matching particles
 [clustCent,~,clustMembsCell] = MeanShiftCluster(vecs',clusterBandwidth); % vecs input must be mdim x npoints
@@ -134,6 +134,8 @@ figure; plot(vecs(:,1),vecs(:,2),'*k');
 matches = pairs(clustMembsCell{matchCluster},:);
 
 % Save verification images of matched and unmatched particles
+matchedPostxy = postxy(matches(:,1),:);
+matchedPrexy = prexy(matches(:,2),:);
 tifName = [saveDir filesep 'pre particles ' writeName];
 imwriteMatchedParticles(pre_cropped,prexy,'green',matchedPrexy,'red',tifName);
 tifName = [saveDir filesep 'post particles ' writeName];
