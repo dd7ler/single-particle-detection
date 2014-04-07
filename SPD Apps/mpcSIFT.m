@@ -1,4 +1,4 @@
-function [preContrast, postContrast, matches, theta, crop_r] = mpcSIFT(pre, post, im_thresh, crop_r,theta_range,TemplateSize, SD, gaussianTh, writeName, saveDir, r_min, r_max, bright_thresh)
+function [preContrast, postContrast, pre_gaussCorrCoef, post_gaussCorrCoef, matches, theta, crop_r] = mpcSIFT(pre, post, im_thresh, crop_r,theta_range,TemplateSize, SD, gaussianTh, writeName, saveDir, r_min, r_max)
 % pcSIFT stands for phase correlation SIFT. Phase correlation is used to
 % align a pre and post image, allowing for background particles in both the
 % post and pre images to be eliminated from the contrast histogram of
@@ -37,20 +37,23 @@ rInner=9;
 rOuter=12;
 
 % 0. Image pre-processing: to avoid bad alignment due to large unique
-% features like salt crystals, use attuenuated images for alignment.
-median_scale = 2000;
-pre =  pre/median(pre(:))*median_scale;
-post = post/median(post(:))*median_scale;
-preAalignIm = pre;
-postAalignIm = post;
-preAalignIm(pre>bright_thresh) = median_scale;
-postAalignIm(post>bright_thresh) = median_scale;
+% features like salt crystals, blur regions of high contrast.
+th = [0.85 1.20];
+preMask = pre<median(pre(:))*th(1) | pre>median(pre(:))*th(2);
+preMask = imdilate(preMask, strel('disk',15));
+postMask = post<median(post(:))*th(1) | post>median(post(:))*th(2);
+postMask = imdilate(postMask, strel('disk',15));
+pre = roifilt2(fspecial('disk',10),pre,preMask);
+post = roifilt2(fspecial('disk',10),post,postMask);
+% rescale the images to 16-bit
+pre = imrescale(pre, median(pre(:))*th(1), median(pre(:))*th(2), 2^16);
+post = imrescale(post,median(post(:))*th(1), median(post(:))*th(2), 2^16);
 
 % Align images, get transform between them
-[deltax, theta, composite, q] = alignImages(preAalignIm, postAalignIm, theta_range);
+[deltax, theta, composite, q] = alignImages(pre, post, theta_range);
 % figure; plot(theta_range,q);
 progressbar([],[],1/10);
-comp = uint16(imrescale(composite,2^16));
+comp = uint16(imrescale(composite,median(composite(:))*.7, median(composite(:))*1.5, 2^16));
 
 if max(q) < mean(q)+3*std(q) % no good alignment was found
 	preContrast = [];
@@ -91,7 +94,6 @@ prexy =   preKPData.VKPs(1:2,:)';
 postxy = postKPData.VKPs(1:2,:)';      % Untransformed particle coordinates
 prePeaks = preKPData.Peaks;
 postPeaks = postKPData.Peaks;
-
 progressbar([],[],4/10);
 
 
@@ -118,13 +120,18 @@ postxyalign = fliplr(postxyalign);
 progressbar([],[],6/10);
 
 % Use nearest neighbor analysis to find all unique pairs. Field points = post, query points = pre
-numPost = length(postxy); % Need to pad post points if postxy is shorter than prexy
-postxy = [postxy; -1e6+rand((length(prexy)- length(postxy) + 2),2)];
-pairs = uniqueNN(postxy, prexy); % column 1 is postxy indices, column 2 is prexy indices. postxy = field points, prexy = query point
-pairs(find(pairs(:,1)>numPost),:) = []; % eliminate any pairs to the post pad points, if they exist
-vecs = postxy(pairs(:,1),:)- prexy(pairs(:,2),:);
-
+numPost = length(postxyalign); % Need to pad post points if postxy is shorter than prexy
+postxyalign = [postxyalign; -1e6+rand((length(pre)- length(postxyalign) + 2),2)];
+pairs = uniqueNN(postxyalign, prexy); % column 1 is postxy indices, column 2 is prexy indices. postxy = field points, prexy = query point
+pairs(pairs(:,1)>numPost,:) = []; % eliminate any pairs to the post pad points, if they exist
+vecs = postxyalign(pairs(:,1),:)- prexy(pairs(:,2),:);
+% figure; scatter(vecs(:,1), vecs(:,2));
 progressbar([],[],7/10);
+
+% figure; hold on; 
+% scatter(postxyalign(:,1), postxyalign(:,2),'*');
+% scatter(prexy(:,1), prexy(:,2),'k');
+
 % Show scatterplot of displacement vectors, and the distinct cluster of matching particles
 % figure; plot(vecs(:,1),vecs(:,2),'*k');
 

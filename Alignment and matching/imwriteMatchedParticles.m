@@ -1,7 +1,7 @@
 function imwriteMatchedParticles(bw, particleLocs, particleColor, matchLocs, matchColor, tifName)
 % imwriteMatchedParticles(bw, particleLocs, particleColor, matchLocs, matchColor, tifName)
 % Write a figure after drawing two different populations of circles
-bw = uint16(imrescale(bw,2^16));
+bw = uint16(bw);
 C = repmat(bw,[1 1 3]);
 
 % red = uint16([1 0 0]*2^16); % [R G B]; class of red must match class of I
