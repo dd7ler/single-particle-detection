@@ -44,24 +44,23 @@ end
 % Align each image to the last, and solve for the displacement and rotation coordinates xyt
 progressbar(2);
 xyt = [0 0 0];
+deltax = [];
 for i = 1:size(images,3)-1
-	[deltax,theta, composite,q] = alignImages(images(:,:,1), images(:,:,i+1), theta_range);
-	figure; plot(theta_range, q);
-	figure; imshow(composite,[]);
-    [deltax, theta]
-	xyt = [xyt; deltax, theta];
-    save('displacements.mat', 'xyt');
+	xy = phCorrAlign(images(:,:,1), images(:,:,i+1));
+	% [deltax,theta, composite,q] = alignImages(images(:,:,1), images(:,:,i+1), theta_range);
+	deltax = [deltax; xy];
+    save('displacements.mat', 'deltax');
 	progressbar(i/size(images,3),1);
 end
 % Output a series of aligned images
 tifName = ['testStack' datestr(now) '.tif'];
-for i = 1:size(images,3)
-    s = load(fList{i+1});
-	im = imrescale(s.frame,2^16);
+for i = 2:size(images,3)
+	im = images(:,:,i);
+	im = imrescale(im,min(im(:)), max(im(:)),2^16);
     im = uint16(im);
-    imr = imrotate(im,xyt(i,3),'crop');
-	imr(imr == 0) = median(imr(:));
-	imrAligned = imtranslate(imr, [0,0]);
+    % imr = imrotate(im,xyt(i,3),'crop');
+	% imr(imr == 0) = median(imr(:));
+	imrAligned = imtranslate(im, deltax(i-1,:));
 	imwrite(imrAligned, tifName,'TIFF', 'writemode', 'append','Compression', 'none');
 	progressbar(i/size(images,3));
 end

@@ -22,14 +22,15 @@ center = floor(size(pcf)/2)+1;
 % colorbar;
 % rr = (center(1)-block_r):(center(1)+block_r);
 % cc = (center(2)-block_r):(center(2)+block_r);
-% pcf(rr,cc) = 0;
-% [r,c] = meshgrid(1:size(pcf,1), 1:size(pcf,2));
-% mask = sqrt((r-size(pcf,1)/2).^2 + (c-size(pcf,2)/2).^2) > block_outer;
-% pcf(mask) = 0;
+
+pcf(center(1), center(2)) = 0;
+[r,c] = meshgrid(1:size(pcf,1), 1:size(pcf,2));
+mask = sqrt((r-size(pcf,1)/2).^2 + (c-size(pcf,2)/2).^2) > block_outer;
+pcf(mask) = 0;
 
 % figure; imagesc(pcf);
 % colorbar;
 [q, idx] = max(pcf(:));
 [r, c] = ind2sub(size(pcf),idx);
 v = [r c];
-delta = v - (size(I1)/2) -1;
+delta = v - center;
