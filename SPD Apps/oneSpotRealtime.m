@@ -32,7 +32,7 @@ mir = s.data;
 mir = mir(700:1000, 700:1000);
 
 images = zeros([size(mir) length(fList)-1]);
-progressbar(1)
+progressbar('Loading Images')
 for i = 1:length(fList)-1
     s = load(fList{i+1});
     im = s.data;
@@ -42,16 +42,27 @@ for i = 1:length(fList)-1
 end
 
 % Align each image to the last, and solve for the displacement and rotation coordinates xyt
-progressbar(2);
+progressbar('Image Set', 'Alignment');
 xyt = [0 0 0];
 deltax = [];
-for i = 1:size(images,3)-1
+for i = 1:size(images,3)-1 % Align all images to the first one
 	xy = phCorrAlign(images(:,:,1), images(:,:,i+1));
 	% [deltax,theta, composite,q] = alignImages(images(:,:,1), images(:,:,i+1), theta_range);
 	deltax = [deltax; xy];
-    save('displacements.mat', 'deltax');
 	progressbar(i/size(images,3),1);
 end
+% Find alignments that were less than 2 pixels (anything larger than this works well)
+displ = sqrt(deltax(:,1).^2 + deltax(:,2).^2);
+% Align these images with the last one;
+closeIdx = find(displ < 2);
+progressbar('')
+for k = 1:length(closeIdx) 
+	xy = phCorrAlign(images(:,:,closeIdx(k)), images(:,:,end));
+	deltax(k,:) = deltax(end,:) - xy;
+	progressbar(k/length(closeIdx),1);
+end
+save('displacements.mat', 'deltax');
+
 % Output a series of aligned images
 tifName = ['testStack' datestr(now) '.tif'];
 for i = 2:size(images,3)

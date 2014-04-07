@@ -27,8 +27,6 @@ pcf(center(1), center(2)) = sum(v(:))./8;
 mask = sqrt((r-size(pcf,1)/2).^2 + (c-size(pcf,2)/2).^2) > block_outer;
 pcf(mask) = 0;
 
-figure; imagesc(pcf);
-colorbar;
 [q, idx] = max(pcf(:));
 [r, c] = ind2sub(size(pcf),idx);
 v = [r c];
