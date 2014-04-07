@@ -26,18 +26,18 @@ optargs(1:length(varargin)) = varargin(:);
 fList = regexpdir(imDir, fPrefix);
 
 % get all the images. 
-mir = 'mirrorDataSet110044';
-s = load([pwd filesep mir]);
-mir = s.data;
-mir = mir(700:1000, 700:1000);
+% mir = 'mirrorDataSet110044';
+% s = load([pwd filesep mir]);
+% mir = s.data;
+% mir = mir(700:1000, 700:1000);
 
-images = zeros([size(mir) length(fList)-1]);
+% images = zeros([size(mir) length(fList)-1]);
 progressbar('Loading Images')
 for i = 1:length(fList)-1
     s = load(fList{i+1});
-    im = s.data;
-    im = im(700:1000, 700:1000);
-    images(:,:,i) = im./mir;
+    % im = im(700:1000, 700:1000);
+    % images(:,:,i) = im./mir;
+    images(:,:,i) = eval(['s.' imageVar]);
     progressbar(i/(length(fList)-1));
 end
 
@@ -54,8 +54,8 @@ end
 % Find alignments that were less than 2 pixels (anything larger than this works well)
 displ = sqrt(deltax(:,1).^2 + deltax(:,2).^2);
 % Align these images with the last one;
-closeIdx = find(displ < 2);
-progressbar('')
+closeIdx = find(displ < 0.5);
+progressbar('Close Images', 'Alignment');
 for k = 1:length(closeIdx) 
 	xy = phCorrAlign(images(:,:,closeIdx(k)), images(:,:,end));
 	deltax(k,:) = deltax(end,:) - xy;
@@ -64,6 +64,7 @@ end
 save('displacements.mat', 'deltax');
 
 % Output a series of aligned images
+progressbar('Saving Images');
 tifName = ['testStack' datestr(now) '.tif'];
 for i = 2:size(images,3)
 	im = images(:,:,i);
