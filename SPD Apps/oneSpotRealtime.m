@@ -26,18 +26,18 @@ optargs(1:length(varargin)) = varargin(:);
 fList = regexpdir(imDir, fPrefix);
 
 % get all the images. 
-% mir = 'mirrorDataSet110044';
-% s = load([pwd filesep mir]);
-% mir = s.data;
-% mir = mir(700:1000, 700:1000);
+mir = 'mirrorDataSet110044';
+s = load([pwd filesep mir]);
+mir = s.data;
+mir = mir(700:1001, 700:1001);
 
 % images = zeros([size(mir) length(fList)-1]);
 progressbar('Loading Images')
 for i = 1:length(fList)-1
     s = load(fList{i+1});
-    % im = im(700:1000, 700:1000);
-    % images(:,:,i) = im./mir;
-    images(:,:,i) = eval(['s.' imageVar]);
+    im = s.data(700:1001, 700:1001);
+    images(:,:,i) = im./mir;
+    % images(:,:,i) = eval(['s.' imageVar]);
     progressbar(i/(length(fList)-1));
 end
 
