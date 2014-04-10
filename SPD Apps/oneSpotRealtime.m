@@ -1,7 +1,8 @@
 function [ output_args ] = oneSpotRealtime(imDir, fPrefix, varargin)
 % ONESPOTREALTIME Track particles in an image sequence. oneSpotRealtime(imDir, fPrefix, varargin)
-% Default varargin are the following:
+% Default varargin are in the following order:
 % imageVar = 'frame'
+% mirPath = 'none'
 % chipVar = 'Chip\d*'
 % tsPattern = 'Frame(\d*).mat$'
 % cropR=0
@@ -17,26 +18,29 @@ function [ output_args ] = oneSpotRealtime(imDir, fPrefix, varargin)
 % pixelAreaMicrons=0.0181
 % pMaterial='poly'
 
-% default parameters, in case some of them are not entered
-optargs = {'frame' 'Chip\d*' 'Frame(\d*).mat$' 0 700 900 0.6 9 1.5 0.7 -2:.4:2 0 200 0.0181 'poly'};
+% Varargin assignment
+optargs = {'frame', 'none', 'output', 'Chip\d*' 'Frame(\d*).mat$' 0 700 900 0.6 9 1.5 0.7 -2:.4:2 0 200 0.0181 'poly'};
 optargs(1:length(varargin)) = varargin(:);
-[imageVar, chipVar, tsPattern cropR, d_min, d_max, im_thresh, TemplateSize, SD, gaussianTh, theta_range, minSize, maxSize, pixelAreaMicrons, pMaterial] = optargs{:};
+[imageVar, mirPath, outName, chipVar, tsPattern cropR, d_min, d_max, im_thresh, TemplateSize, SD, gaussianTh, theta_range, minSize, maxSize, pixelAreaMicrons, pMaterial] = optargs{:};
 
-% Generate image names
+% Find images
 fList = regexpdir(imDir, fPrefix);
+disp(['Found ' num2str(length(fList)) ' images']);
 
-% get all the images. 
-mir = 'mirrorDataSet110044';
-s = load([pwd filesep mir]);
-mir = s.data;
-mir = mir(700:1001, 700:1001);
+% Load mirror if it exists.
+if strcmp(mirPath, 'none')
+	disp('Not using a mirror')
+	mir = 1;
+else
+	disp('Using a mirror.')
+	s = load(mirPath);
+	mir = s.data;
+end
 
-% images = zeros([size(mir) length(fList)-1]);
 progressbar('Loading Images')
 for i = 1:length(fList)-1
     s = load(fList{i+1});
-    im = s.data(700:1001, 700:1001);
-    images(:,:,i) = im./mir;
+    images(:,:,i) = s.data./mir;
     % images(:,:,i) = eval(['s.' imageVar]);
     progressbar(i/(length(fList)-1));
 end
@@ -51,6 +55,7 @@ for i = 1:size(images,3)-1 % Align all images to the first one
 	deltax = [deltax; xy];
 	progressbar(i/size(images,3),1);
 end
+
 % Find alignments that were less than 2 pixels (anything larger than this works well)
 displ = sqrt(deltax(:,1).^2 + deltax(:,2).^2);
 % Align these images with the last one;
@@ -65,7 +70,7 @@ save('displacements.mat', 'deltax');
 
 % Output a series of aligned images
 progressbar('Saving Images');
-tifName = ['testStack' datestr(now) '.tif'];
+tifName = [outName datestr(now) '.tif'];
 for i = 2:size(images,3)
 	im = images(:,:,i);
 	im = imrescale(im,min(im(:)), max(im(:)),2^16);
