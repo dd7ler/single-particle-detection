@@ -1,12 +1,13 @@
-function images =  loadZoirayImages(imageDir, zName, imageVar)
+function images =  loadZoirayImages(imageDir, nameRegEx, imageVar)
 % LOADZOIRAYIMAGES retrieve a series of images captured with Zoiray software 
 % and saved in .mat files.
 % 
-% images = loadZoirayImages(imageDir, zName, imageVar) is a 3D double array 
+% images = loadZoirayImages(imageDir, nameRegEx, imageVar) is a 3D double array 
 % 	size (r,c,3), such that image i is retrieved with images(:,:,i).
-% 	loadZoirayImages searches recursively in the directory 'imageDir' (string) for '.mat' files that match the file name 'zName'
+% 	loadZoirayImages searches recursively in the directory 'imageDir' (string) for '.mat' files that match the file regular expression 'nameRegEx'
 
-fList = regexpdir(imageDir, zName);
+fList = regexpdir(imageDir, nameRegEx);
+
 
 % load the first image, so we can preallocate 'images'
 s = load(fList{1});

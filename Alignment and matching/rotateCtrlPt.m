@@ -1,11 +1,16 @@
 
 function rc_out = rotateCtrlPt(rc,theta,imDim)
-% rc is the untransformed coordinates of the point. delta and theta are the
-% desired translation and angle offset (degrees) respectively. imDim is the
-% [r,c] size of the image. 
-% rc_out is the transformed coordinates of the point.
+% ROTATECTRLPT perform a rotation transformation to a single point.
+% 
+% rc_out = rotateCtrlPt(rc, theta, imDim) is the (r,c) coordinates 
+% 	of a point after rotation by angle 'theta' (degrees) about an 
+% 	image with size 'imDim'
+% 
+% rc is the inital coordinates of the point in matrix (or image) 
+% 	coordinates, i.e., image(r,c). 
+% Theta is the rotation angle in degrees.
+% imDim is the [r,c] size of the image. 
 
-% 1. Rotate the coordinates about the center of the image
 t = theta*pi/180;
 A = [cos(t), -sin(t)     % Rotation matrix
     sin(t), cos(t)];

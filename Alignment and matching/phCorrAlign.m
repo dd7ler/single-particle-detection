@@ -1,8 +1,7 @@
-% Simple image alignment using phase correlation
+function [delta,q] = phCorrAlign(I1, I2)
+	% Simple image alignment using phase correlation
 % Translation only, does not account for rotation.
 % Sauce: http://www.mathworks.com/matlabcentral/newsreader/view_thread/22794
-
-function [delta,q] = phCorrAlign(I1, I2)
 % delta is the [row, column] displacement of I2 relative to I1.
 
 block_outer = 300;
@@ -28,7 +27,7 @@ pcf(cPix(1), cPix(2)) = sum(reg(:))./8;
 mask = sqrt((r-size(pcf,1)/2).^2 + (c-size(pcf,2)/2).^2) > block_outer;
 pcf(mask) = 0;
 
-figure; imagesc(pcf); colorbar;
+% figure; imagesc(pcf); colorbar;
 
 [q, idx] = max(pcf(:));
 [r, c] = ind2sub(size(pcf),idx);

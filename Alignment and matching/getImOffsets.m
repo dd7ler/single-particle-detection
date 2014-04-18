@@ -1,5 +1,5 @@
 function deltaRCT = getImOffsets(images)
-% getImOffsets get the row, column and rotation offsets of a series of images 
+% getImOffsets Get the row, column and rotation offsets of a series of images 
 % 	from the first one.
 % 	
 % deltaxyt = alignSeries(IMAGES) is a nx3 matrix, where n is size(IMAGES,3)-1. 
@@ -13,8 +13,8 @@ function deltaRCT = getImOffsets(images)
 % NOTE - Only row and column offsets are implemented so far - not rotation. 
 % 	So, the third column is always 0 - for now...
 
-deltaRCT = zeros(3, size(images,3)-1);
+deltaRCT = zeros(size(images,3)-1,3);
 for n = 1:size(images,3)-1
 	xy = phCorrAlign(images(:,:,1), images(:,:,n+1));
-	deltaRCT(a,:) = [xy 0];
+	deltaRCT(n,:) = [xy 0];
 end
