@@ -17,9 +17,9 @@ function matches = matchParticles(particles)
 % 	MeanShiftCluster (clustering).
 
 matches = cell(length(particles));
-for n = 1:length(deltaRCT)-1
-	p1 = alignedP{n};
-	p2 = alignedP{n+1};
+for n = 1:length(particles)-1
+	p1 = particles{n};
+	p2 = particles{n+1};
 
 	% find nearest neighbors. Query points in image n, field points in image n+1
 	p2origL = length(p2);
@@ -33,8 +33,3 @@ for n = 1:length(deltaRCT)-1
 	[~,matchCluster] = min(clustCent(1,:).^2 + clustCent(2,:).^2); % The match cluster is the cluster closest to (0,0) displacement vector which is the largest also
 	matches(n) = pairs(clustMembsCell{matchCluster},:);
 end
-
-
-	% 'deltaRCT' is a matrix size n x 3, where each row has is 
-% 	the displacement (r,c,theta) with respect to the first image 
-% 	and n is the total number of images.

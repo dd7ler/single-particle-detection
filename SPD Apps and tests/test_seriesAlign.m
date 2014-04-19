@@ -37,11 +37,27 @@ else
 	mirPat = repmat(mir, [1 1 size(images,3)]);
 	images = images./mirPat;
 end
+save('images.mat','images','-V7.3');
+disp('images saved')
 toc
 
 disp('Aligning images...');
-% Images are aligned to the first one
+% Images are aligned to the firs one
 deltaRCT = getImOffsets(images);
+save('deltaRCT.mat','deltaRCT');
+disp('Alignment saved');
+toc
+
+disp('Detecting Particles');
+params = struct('templateSize', 9, 'SD', 1.5, 'innerRadius', 9, 'outerRadius', 12);
+[particleXY, contrasts] = particleDetection(images, params);
+disp('Detected particles saved');
+toc
+
+disp('Matching Particles...');
+particleRC = fliplr(particleXY);
+translatedRC = translateCoords(particleRC, -1*deltaRCT, size(images(:,:,1)));
+matches = matchParticles(translatedRC);
 toc
 
 disp('Writing multipage TIFF...');
@@ -54,6 +70,3 @@ toc
 disp('Done!')
 
 end
-
-
-

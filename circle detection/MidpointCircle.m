@@ -3,7 +3,7 @@
 % Created by : Peter Bone
 % Created : 19th March 2007
 
-% Edited by DDS for RGB image compatibility. Value is a normalized RGB
+% Edited by Derin Sevenler for RGB image compatibility. Value is a normalized RGB
 % color vector (levels between 0 and 1).
 
 function i = MidpointCircle(i, radius, xc, yc, v)
