@@ -49,8 +49,10 @@ disp('Alignment saved');
 toc
 
 disp('Detecting Particles');
-params = struct('templateSize', 9, 'SD', 1.5, 'innerRadius', 9, 'outerRadius', 12);
+params = struct('IntensityThresh', 0.6, 'EdgeTh', 2, 'gaussianTh', 0.6, ...
+	'templateSize', 9, 'SD', 1.5, 'innerRadius', 9, 'outerRadius', 12);
 [particleXY, contrasts] = particleDetection(images, params);
+save('particleData.mat', 'particleXY' 'contrasts');
 disp('Detected particles saved');
 toc
 

@@ -27,15 +27,15 @@ end
 
 % Gaussian filtering
 imCell = squeeze(num2cell(images, [1 2]));
-templateSizeCell = cell(size(xyCell)) % Initialization
-SDCell = templateSizeCell
-gThCell = templateSizeCell
-templateSizeCell(:) = {params.templateSize} % population
-SDCell(:) = {params.SD}
+templateSizeCell = cell(size(xyCell)); % Initialization
+SDCell = templateSizeCell;
+gThCell = templateSizeCell;
+templateSizeCell(:) = {params.templateSize}; % population
+SDCell(:) = {params.SD};
 gThCell(:) = {params.gaussianTh};
 
-corrCoefs = cellfun(@gaussianfilter, imCell, xyCell, templateSizeCell, SDCell, 'UniformOutput', false)
-indices = cellfun(@(x,y) find(x>y), corrCoefs, gThCell, 'UniformOutput', false)
+corrCoefs = cellfun(@gaussianfilter, imCell, xyCell, templateSizeCell, SDCell, 'UniformOutput', false);
+indices = cellfun(@(x,y) find(x>y), corrCoefs, gThCell, 'UniformOutput', false);
 % apply filters
 particleXY = cellfun(@(x,y) x(y,:), xyCell, indices, 'UniformOutput', false);
 filteredPeaks = cellfun(@(x,y) x(y,:), peaks, indices, 'UniformOutput', false);
