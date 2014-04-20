@@ -9,7 +9,8 @@ function labeledIm = drawCircles(I, XY, r, color)
 % 	of (r,c) image indexing convention)
 % r is the desired radius of the circles (i.e., r=6).
 % color is the desired line color, i.e., 'red', 'green', 
-% 	'blue', or an 1x3 rgb array with values between 0 and 1 (i.e., [1 0 0]).
+% 	'blue', or an 1x3 rgb array with values between 0 and 1 
+% 	(i.e., [1 0 0]), or a cell array of [1x3] rgb, one for each circle.
 
 rArray = r*ones(size(XY,1),1);
 labeledIm= insertShape(I, 'circle', [XY rArray], 'color', color);
