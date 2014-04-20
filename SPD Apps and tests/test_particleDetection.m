@@ -4,13 +4,13 @@
 
 params = struct('IntensityThresh', 0.6, 'EdgeTh', 2, 'gaussianTh', 0.4, ...
 	'templateSize', 9, 'SD', 1.5, 'innerRadius', 9, 'outerRadius', 12);
-[particleXY, contrasts] = particleDetection(imset, params);
+[particleXY, contrasts] = particleDetection(imr, params);
 particleRC = cellfun(@fliplr, particleXY, 'UniformOutput', false);
 
 % rescale to 16-bit
 
 th = [0.85, 1.20];
-imr = imrescale(imset, median(imset(:))*th(1), median(imset(:))*th(2), 2^16);
+imr = imrescale(imr, median(imr(:))*th(1), median(imr(:))*th(2), 2^16);
 
 labelRadius = 4;
 color = 'red';

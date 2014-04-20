@@ -18,6 +18,7 @@ function [particleXY, contrasts] = particleDetection(images, params)
 % SIFT key point detection
 xyCell = cell(size(images,3),1);
 peaks = cell(size(images,3),1);
+progressbar('SIFT')
 for n = 1:size(images,3)
 	kpdata = getParticles(images(:,:,n), params.IntensityThresh, params.EdgeTh);
 	xyCell{n} = kpdata.VKPs(1:2,:)';

@@ -37,9 +37,12 @@ else
 	mirPat = repmat(mir, [1 1 size(images,3)]);
 	images = images./mirPat;
 end
-save('images.mat','images','-V7.3');
-disp('images saved')
+% get subregion
+images = images(700:1000,700:1000,:);
+% save('images.mat','images','-V7.3');
+% disp('images saved')
 toc
+
 
 disp('Aligning images...');
 % Images are aligned to the firs one
@@ -49,24 +52,36 @@ disp('Alignment saved');
 toc
 
 disp('Detecting Particles');
-params = struct('IntensityThresh', 0.6, 'EdgeTh', 2, 'gaussianTh', 0.6, ...
+params = struct('IntensityThresh', 0.6, 'EdgeTh', 2, 'gaussianTh', 0.5, ...
 	'templateSize', 9, 'SD', 1.5, 'innerRadius', 9, 'outerRadius', 12);
 [particleXY, contrasts] = particleDetection(images, params);
-save('particleData.mat', 'particleXY' 'contrasts');
+save('particleData.mat', 'particleXY', 'contrasts');
 disp('Detected particles saved');
 toc
 
-disp('Matching Particles...');
-particleRC = fliplr(particleXY);
-translatedRC = translateCoords(particleRC, -1*deltaRCT, size(images(:,:,1)));
-matches = matchParticles(translatedRC);
+disp('Matching & Tracking Particles...');
+clusterBandwidth = 4;
+particleRC = cellfun(@fliplr, particleXY, 'UniformOutput', false);
+deltaRCTneg = num2cell(-1*deltaRCT,2);
+imSize = size(images);
+imSizeC = cell(imSize(3),1); imSizeC(:) = {imSize(1:2)};
+translatedRC = cellfun(@translateCoords, particleRC, deltaRCTneg, imSizeC, 'UniformOutput', false);
+matches = matchParticles(translatedRC, clusterBandwidth);
+particleList = trackParticles(particleRC, matches);
 toc
 
-disp('Writing multipage TIFF...');
-images = imrescale(images, min(images(:)), max(images(:)),2^8);
-images= uint8(images);
-outName = ['seriesAlign' datestr(now) '.tif'];
-writeAlignedTiff(images, deltaRCT, outName);
+disp('Labeling particles...');
+% Label Particles with colors
+colors = rand(length(particleList), 3);
+colors = num2cell(colors,2);
+particleList = [particleList colors];
+labelRadius = 4;
+labeledIms = labelIms(images, particleList);
+outName = 'test';
+toc
+
+disp('printing...')
+writeAlignedTiff(labeledIms, deltaRCT, outName);
 toc
 
 disp('Done!')
