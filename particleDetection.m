@@ -5,6 +5,7 @@ function [particleXY, contrasts] = particleDetection(images, params)
 % 	Those are filtered, such that only key points which are approximately 
 % 	gaussian are considered to be particles. 
 % 
+% This script incorporates parallel processing if you have matlab pool open (i.e., run 'matlabpool open' before and 'matlabpool close' after)
 % [xy, contrasts] = particleDetection(images, params)
 % images is a double matrix with size(images, 3) = n, where n is the 
 % 	number of images.
@@ -16,36 +17,17 @@ function [particleXY, contrasts] = particleDetection(images, params)
 % defaultParams = struct('IntensityThresh', 0.6, 'EdgeTh', 2, 'gaussianTh', 0.6, 'templateSize', 9, 'SD', 1.5, 'innerRadius', 9, 'outerRadius', 12);
 
 % SIFT key point detection
-xyCell = cell(size(images,3),1);
-peaks = cell(size(images,3),1);
-progressbar('SIFT')
-for n = 1:size(images,3)
+particleXY = cell(size(images,3),1);
+contrasts = cell(size(images,3),1);
+parfor n = 1:size(images,3)
 	kpdata = getParticles(images(:,:,n), params.IntensityThresh, params.EdgeTh);
-	xyCell{n} = kpdata.VKPs(1:2,:)';
-	peaks{n} = kpdata.Peaks;
-	progressbar(n/size(images,3))
+	xy = kpdata.VKPs(1:2,:)';
+	peaks = kpdata.Peaks;
+	corrCoefs = gaussianfilter(images(:,:,n), xy, params.templateSize, params.SD);
+	indices = find(corrCoefs>params.gaussianTh);
+	filteredPeaks = peaks(indices);
+	particleXY{n} = xy(indices,:);
+	contrasts{n} = ComputeContrast(images(:,:,n), filteredPeaks, particleXY{n}, params.innerRadius, params.outerRadius);
 end
-
-% Gaussian filtering
-imCell = squeeze(num2cell(images, [1 2]));
-templateSizeCell = cell(size(xyCell)); % Initialization
-SDCell = templateSizeCell;
-gThCell = templateSizeCell;
-templateSizeCell(:) = {params.templateSize}; % population
-SDCell(:) = {params.SD};
-gThCell(:) = {params.gaussianTh};
-
-corrCoefs = cellfun(@gaussianfilter, imCell, xyCell, templateSizeCell, SDCell, 'UniformOutput', false);
-indices = cellfun(@(x,y) find(x>y), corrCoefs, gThCell, 'UniformOutput', false);
-% apply filters
-particleXY = cellfun(@(x,y) x(y,:), xyCell, indices, 'UniformOutput', false);
-filteredPeaks = cellfun(@(x,y) x(y,:), peaks, indices, 'UniformOutput', false);
-
-% Compute particle contrasts from local background intensity
-irCell=cell(size(xyCell));
-irCell(:) = {params.innerRadius};
-orCell=cell(size(xyCell));
-orCell(:) = {params.outerRadius};
-contrasts = cellfun(@ComputeContrast, imCell, filteredPeaks, particleXY, irCell, orCell, 'UniformOutput', false);
 
 end

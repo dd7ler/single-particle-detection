@@ -27,5 +27,4 @@ particleList = [particleList colors];
 labeledIms = imr;
 labelRadius = 4;
 labeledIms = labelIms(imr, particleList);
-outName = 'reverse';
 writeAlignedTiff(labeledIms, d, outName);
