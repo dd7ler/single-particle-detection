@@ -13,11 +13,11 @@ function matches = matchParticles(particles,clusterBandwidth)
 % 'matches' is a cell array with a length equal to (length(particles)-1). 
 %	matches{n} is an a x 2 array, where 'a' matches were found between 
 % 	particles{n} and particles{n+1}. Each match is represented by the 
-% 	indices of the coordinates in particles{n} and particles{n+1}.
+% 	indices of the coordinates in particles{n} (at matchesand particles{n+1}.
 % 
 % This function uses uniqueNN (unique nearest neighbor) and 
 % 	MeanShiftCluster (clustering).
-size(particles)
+
 matches = cell(size(particles)-1);
 for n = 1:length(particles)-1
 	p1 = particles{n};
@@ -35,5 +35,6 @@ for n = 1:length(particles)-1
 	[clustCent,~,clustMembsCell] = MeanShiftCluster(vecs',clusterBandwidth); % vecs input must be mdim x npoints
 	[~,matchCluster] = min(clustCent(1,:).^2 + clustCent(2,:).^2); % The match cluster is the cluster closest to (0,0) displacement vector which is the largest also
 
-	matches(n) = {pairs(clustMembsCell{matchCluster},:)}
+	m = pairs(clustMembsCell{matchCluster},:);
+	matches(n) = {fliplr(m)};
 end

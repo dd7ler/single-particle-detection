@@ -1,4 +1,4 @@
-function particleList = trackParticles(particleRC, matches)
+function trackList = trackParticles(rc, unsrtmatches)
 % TRACKPARTICLES track matched particles.
 % 
 % particleList = trackParticles(particleRC, matches)
@@ -10,20 +10,31 @@ function particleList = trackParticles(particleRC, matches)
 % 	all the images. For particle n, particleList(n,1) is an array 
 % 	of which images that particle was in (i.e., [1 2 3]). particleList(n,2) is an array of (r,c) particle coordinates in those images.
 
-% First Image
-particleList = cell(size(particleRC{1},1),1);
-particleList(:) = {1};
-firstCoords = particleRC{1};
-particleList(:,2) = num2cell(particleRC{1},2); % first image coordinates
+trackList = ones(length(rc{1}),1); % initialization with the first image
+trackList = num2cell(trackList);
+particleNames = 1:length(rc{1});
 
-for n = 1:length(matches)
-	nCoordinates = particleRC{n};
+lut = repmat([1:length(rc{1})]',1,2); % dummy initialization lut
 
-	matchedIdx = matches{n}(:,1); % indices of particles in the previous image
+% matches gotta be sorted by first column
+oneC = cell(size(unsrtmatches));
+oneC(:) = {1};
+matches = cellfun(@sortrows, unsrtmatches,oneC,'UniformOutput', false);
 
-	% append index n to matched particles
-	nCell = cell(size(matchedIdx,1));
-	cellfun(@(x,y) [x;y], particleList(matchedIdx,1), nCell);
-	% append coordinates to matched particles
-	
+for n = 2:length(rc)
+	 % crazy indexing magic to update lut
+	[C, lutIdx, ~] = intersect(lut(:,1), matches{n-1}(:,1),'stable');
+	lut = [matches{n-1}(:,2) lut(lutIdx,2)];
+
+	lastName = length(particleNames);
+	unmatchedNames = lastName + (1:(length(rc{n})-length(matches{n-1})));
+	allNew = 1:length(rc{n});
+	unmatched = setdiff(allNew, lut(:,1)');
+	lut = [lut; [unmatched', unmatchedNames']];
+	lut = sortrows(lut, 1) % gotta sort it
+	trackList = [trackList; cell(length(unmatchedNames),1)];
+	for x = 1:length(lut)
+		trackList{lut(x,2)} = [trackList{lut(x,2)} n];
+	end
+	particleNames = 1:max(lut(:,2));
 end
