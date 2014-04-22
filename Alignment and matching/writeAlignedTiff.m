@@ -10,9 +10,6 @@ function writeAlignedTiff(images, deltaRCT, dirName)
 % 	image. The rotation is done first, then displacement.
 % tifName can point to a directory, relative to the current 
 % 	working directory or in absolute terms.
-% 
-% This script incorporates parallel processing if you have matlab pool open (i.e., run 'matlabpool open' before and 'matlabpool close' after)
-
 
 mkdir(pwd, dirName);
 

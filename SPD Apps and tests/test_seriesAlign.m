@@ -59,7 +59,7 @@ disp(['Alignment completed at ' num2str(round(toc)) ' seconds.']);
 
 
 disp('Detecting Particles...');
-params = struct('IntensityThresh', 0.6, 'EdgeTh', 2, 'gaussianTh', 0.4, ...
+params = struct('IntensityThresh', 0.6, 'EdgeTh', 2, 'gaussianTh', 0.6, ...
 	'templateSize', 9, 'SD', 1.5, 'innerRadius', 9, 'outerRadius', 12);
 [particleXY, contrasts] = particleDetection(images, params);
 % save('particleData.mat', 'particleXY', 'contrasts');
@@ -76,9 +76,6 @@ matches = matchParticles(translatedRC, clusterBandwidth);
 particleList = trackParticles(particleRC, matches);
 disp(['Particle tracking completed at ' num2str(round(toc)) ' seconds.']);
 
-% get Sites
-alignedList = trackParticles(translatedRC, matches);
-save alignedList
 
 disp('Labeling particles...');
 % Label Particles with colors
@@ -87,11 +84,30 @@ colors = num2cell(colors,2);
 particleList = [particleList colors];
 labelRadius = 4;
 labeledIms = labelIms(images, particleList);
-outName = 'test';
+outName = 'Individual Particles';
 disp(['Labeling completed at ' num2str(round(toc)) ' seconds.']);
 
+disp('printing particles...')
+writeAlignedTiff(labeledIms, deltaRCT, outName);
+disp(['Printing completed at ' num2str(round(toc)) ' seconds.']);
 
-disp('printing...')
+% get Sites
+disp('Determining sites...')
+alignedList = trackParticles(translatedRC, matches);
+bandWidth = 3;
+[imagesHere, sitesXY] = findSites(alignedList, bandWidth);
+
+disp('Labeling sites...');
+% Label Particles with colors
+colors = rand(length(sitesXY), 3);
+colors = num2cell(colors,2);
+sitesList = [imagesHere', sitesXY, colors];
+labelRadius = 4;
+labeledIms = labelIms(images, sitesList);
+outName = 'Sites';
+disp(['Labeling completed at ' num2str(round(toc)) ' seconds.']);
+
+disp('printing sites...')
 writeAlignedTiff(labeledIms, deltaRCT, outName);
 disp(['Printing completed at ' num2str(round(toc)) ' seconds.']);
 
