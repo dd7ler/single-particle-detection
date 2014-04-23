@@ -10,13 +10,15 @@ function particleList = trackParticles(rc, matches)
 % 	all the images. For particle n, particleList(n,1) is an array 
 % 	of which images that particle was in (i.e., [1 2 3]). particleList(n,2) is an array of (r,c) particle coordinates in those images.
 
-pList = ones(length(rc{1}),1);
+% Initialize with particles in the first images
+pList = ones(length(rc{1}),1); % All 
 particleList = [num2cell(pList) num2cell(rc{1},2)];
-particleNames = 1:length(rc{1});
+lastName = length(rc{1}); % Each tracked particle in the stack has a unique number. This is it's index in particleList
 
+% The look-up table is like an updated list of matches
 lut = repmat([1:length(rc{1})]',1,2); % dummy initialization lut
 
-% matches gotta be sorted by the first column
+% matches gotta be sorted by the first column (previous indices)
 oneC = cell(size(matches));
 oneC(:) = {1};
 matches = cellfun(@sortrows, matches,oneC,'UniformOutput', false);
@@ -25,18 +27,14 @@ for n = 2:length(rc)
 	 % crazy indexing magic to update lut
 	[~, lutIdx, ~] = intersect(lut(:,1), matches{n-1}(:,1),'stable');
 	lut = [matches{n-1}(:,2) lut(lutIdx,2)];
-    
-	lastName = length(particleNames);
-	unmatchedNames = lastName + (1:(length(rc{n})-length(matches{n-1})));
-	allNew = 1:length(rc{n});
-	unmatched = setdiff(allNew, lut(:,1)');
-    size(unmatched)
-    size(unmatchedNames)
+	unmatchedNames = lastName + (1:(size(rc{n},1)-size(matches{n-1},1))); % names to give to the unmatched particles
+	allNewIdx = 1:length(rc{n})
+	unmatched = setdiff(allNewIdx, lut(:,1)')
 	lut = [lut; [unmatched', unmatchedNames']];
 	lut = sortrows(lut, 1); % gotta sort it
 	particleList = [particleList; cell(length(unmatchedNames),2)];
 	for x = 1:length(lut)
 		particleList(lut(x,2),:) = {[particleList{lut(x,2),1} n], [particleList{lut(x,2),2}; rc{n}(lut(x,1),:)]};
 	end
-	particleNames = 1:max(lut(:,2));
+	lastName = max(lut(:,2)); % The highest particle name
 end
