@@ -44,7 +44,8 @@ else
 end
 disp(['Normalization completed at ' num2str(round(toc)) ' seconds.'])
 % get subregion
-images = images(700:1000,700:1000,:);
+% images = images(700:1000,700:1000,:);
+images = imrescale(images, 1, 1.2, 1);
 imSize = size(images);
 disp(['Cropped region is ' num2str(round(imSize(1)*imSize(2)/10^4)/10^2) ' megapixels.']);
 % save('images.mat','images','-V7.3');
@@ -59,7 +60,7 @@ disp(['Alignment completed at ' num2str(round(toc)) ' seconds.']);
 
 
 disp('Detecting Particles...');
-params = struct('IntensityThresh', 0.6, 'EdgeTh', 2, 'gaussianTh', 0.6, ...
+params = struct('IntensityThresh', 0.6, 'EdgeTh', 2, 'gaussianTh', 0.1, ...
 	'templateSize', 9, 'SD', 1.5, 'innerRadius', 9, 'outerRadius', 12);
 [particleXY, contrasts] = particleDetection(images, params);
 % save('particleData.mat', 'particleXY', 'contrasts');
@@ -78,11 +79,9 @@ disp(['Particle tracking completed at ' num2str(round(toc)) ' seconds.']);
 
 
 disp('Labeling particles...');
-% Label Particles with colors
 colors = rand(length(particleList), 3);
 colors = num2cell(colors,2);
 particleList = [particleList colors];
-labelRadius = 4;
 labeledIms = labelIms(images, particleList);
 outName = 'Individual Particles';
 disp(['Labeling completed at ' num2str(round(toc)) ' seconds.']);
@@ -91,26 +90,25 @@ disp('printing particles...')
 writeAlignedTiff(labeledIms, deltaRCT, outName);
 disp(['Printing completed at ' num2str(round(toc)) ' seconds.']);
 
-% get Sites
 disp('Determining sites...')
 alignedList = trackParticles(translatedRC, matches);
 bandWidth = 3;
 [imagesHere, sitesXY] = findSites(alignedList, bandWidth);
-
-disp('Labeling sites...');
-% Label Particles with colors
-colors = rand(length(sitesXY), 3);
-colors = num2cell(colors,2);
-sitesList = [imagesHere', sitesXY, colors];
-labelRadius = 4;
-labeledIms = labelIms(images, sitesList);
-outName = 'Sites';
-disp(['Labeling completed at ' num2str(round(toc)) ' seconds.']);
-
-disp('printing sites...')
-writeAlignedTiff(labeledIms, deltaRCT, outName);
-disp(['Printing completed at ' num2str(round(toc)) ' seconds.']);
-
-disp('Done!')
+% 
+% disp('Labeling sites...');
+% colors = rand(length(sitesXY), 3);
+% colors = num2cell(colors,2);
+% sitesList = [imagesHere', sitesXY, colors];
+% registeredIms = getBWAlignedStack(images, -1*deltaRCT);
+% labeledIms = labelIms(registeredIms, sitesList);
+% outName = 'Sites';
+% disp(['Labeling completed at ' num2str(round(toc)) ' seconds.']);
+% 
+% disp('printing sites...')
+% dummyRCT = zeros(size(deltaRCT));
+% writeAlignedTiff(labeledIms, deltaRCT, outName);
+% disp(['Printing completed at ' num2str(round(toc)) ' seconds.']);
+% 
+% disp('Done!')
 
 end

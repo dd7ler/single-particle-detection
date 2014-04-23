@@ -10,6 +10,11 @@ fList = regexpdir(imageDir, nameRegEx);
 
 
 % load the first image, so we can preallocate 'images'
+if length(fList) == 0
+    disp('Sorry, I didn''t find any images that match that regular expression.');
+    images = [];
+    return;
+end
 s = load(fList{1});
 im1 = eval(['s.' imageVar]);
 images = zeros(size(im1,1), size(im1, 2), length(fList));

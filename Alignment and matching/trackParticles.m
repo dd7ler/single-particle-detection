@@ -25,7 +25,6 @@ for n = 2:length(rc)
 	 % crazy indexing magic to update lut
 	[C, lutIdx, ~] = intersect(lut(:,1), matches{n-1}(:,1),'stable');
 	lut = [matches{n-1}(:,2) lut(lutIdx,2)];
-
 	lastName = length(particleNames);
 	unmatchedNames = lastName + (1:(length(rc{n})-length(matches{n-1})));
 	allNew = 1:length(rc{n});

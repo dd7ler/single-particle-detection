@@ -30,7 +30,7 @@ pcf(mask) = 0;
 % figure; imagesc(pcf); colorbar;
 
 [q, idx] = max(pcf(:));
-[r, c] = ind2sub(size(pcf),idx);
+[r, c] = ind2sub(size(pcf),idx)
 roi = pcf(r-5:r+5, c-5:c+5);
 P = peakfit2d(roi);
 
