@@ -11,7 +11,7 @@ for n = 1:N
 	myList = particleList(isHere,:);
 	nC2 = cell(size(myList,1),1);
 	nC2(:) = {n};
-	myRC = cellfun(@(x,y,n) x(find(y==n),:), myList(:,2), myList(:,1), nC2, 'UniformOutput', false);
+	myRC = cellfun(@(x,y,n) x(y==n,:), myList(:,2), myList(:,1), nC2, 'UniformOutput', false);
 	myRC = cell2mat(myRC);
 	myRC = fliplr(myRC);
 	myColors = myList(:,3);
