@@ -13,8 +13,8 @@ for i = 1:size(peakLocations,1)
 	c0 = rc(2) - outerRadius; if c0 < 1, c0 = 1; end;
 	c1 = rc(2) + outerRadius; if c1 > size(frame,2), c1 = size(frame,2); end;
 	region = frame(r0:r1, c0:c1);
-    [rr,cc] = meshgrid(r0:r1, c0:c1);
-    mask = ~(sqrt((rr-r).^2+(cc-c).^2)>=outerRadius | sqrt((rr-r).^2+(cc-c).^2)<=innerRadius);
+    [rr,cc] = meshgrid(c0:c1, r0:r1);
+    mask = ~(sqrt((rr-rc(1)).^2+(cc-rc(2)).^2)>=outerRadius | sqrt((rr-rc(1)).^2+(cc-rc(2)).^2)<=innerRadius);
     overlap = region.*mask;
     medianVals(i)= median(overlap(overlap~=0));
 end

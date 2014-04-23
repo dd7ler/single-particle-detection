@@ -23,12 +23,15 @@ matches = cellfun(@sortrows, matches,oneC,'UniformOutput', false);
 
 for n = 2:length(rc)
 	 % crazy indexing magic to update lut
-	[C, lutIdx, ~] = intersect(lut(:,1), matches{n-1}(:,1),'stable');
+	[~, lutIdx, ~] = intersect(lut(:,1), matches{n-1}(:,1),'stable');
 	lut = [matches{n-1}(:,2) lut(lutIdx,2)];
+    
 	lastName = length(particleNames);
 	unmatchedNames = lastName + (1:(length(rc{n})-length(matches{n-1})));
 	allNew = 1:length(rc{n});
 	unmatched = setdiff(allNew, lut(:,1)');
+    size(unmatched)
+    size(unmatchedNames)
 	lut = [lut; [unmatched', unmatchedNames']];
 	lut = sortrows(lut, 1); % gotta sort it
 	particleList = [particleList; cell(length(unmatchedNames),2)];
