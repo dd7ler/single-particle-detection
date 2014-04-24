@@ -6,62 +6,84 @@
 % portion of your analysis! These code sections are just examples of what
 % you might want to use.
 
+if matlabpool('size') == 0
+    matlabpool open
+end
+
 
 
 %% Load images
-
 imDir = pwd;
 % This means "Grab any file that contains the phrase 'DataSet' and ends with '.mat'"
-nameRegEx = '^.*DataSet.*\.mat$'; 
-imageVar = 'frame';
+nameRegEx = '^.*2DataSet.*\.mat$'; 
+imageVar = 'data';
 
 disp('Loading Images...');
-images = loadZoirayImages(imDir, nameRegEx, imageVar);
+rawIms = loadZoirayImages(imDir, nameRegEx, imageVar);
 disp(['Loaded ' num2str(size(images,3)) ' images.']);
+save('images.mat','images');
 
 
 
 %% Image Cropping & Normalization
+mirPath = 'mirrorDataSet110044.mat';
 
-mirPath = 'none';
 if strcmp(mirPath, 'none')
 	disp('Not using a mirror.')
+    images = rawIms;
 else
 	disp('Using a mirror...')
 	s = load(mirPath);
 	mir = eval(['s.' imageVar]);
 	mirPat = repmat(mir, [1 1 size(images,3)]);
-	images = images./mirPat;
+	images = rawIms./mirPat;
 end
+% 
+figure; imshow(images(:,:,round(size(images,3)/2)),[]);
+h = imrect;
+region = round(wait(h));
+images = images(region(1):(region(1)+region(3)), region(2):(region(2)+region(4)), :);
+close
 
-% CropRegion = '700:1000, 700:1000, :';
-% images = images(eval(CropRegion))
+
+
+%% Image Alignment
+
+disp('Aligning images...');
+% Images are aligned to the first one
+deltaRCT = getImOffsets(images);
+% save('deltaRCT.mat','deltaRCT');
+disp(['Alignment completed.']);
 
 
 
 %% Detect particles
-
+params = struct('IntensityThresh', .8, 'EdgeTh', 2, 'gaussianTh', 0.3, ...
+	'template', 5, 'SD', 1.0, 'innerRadius', 4, 'outerRadius', 6, 'contrastTh', 1.007);
 disp('Detecting Particles...');
-params = struct('IntensityThresh', 2, 'EdgeTh', 2, 'gaussianTh', 0.3, ...
-	'templateSize', 9, 'SD', 1.5, 'innerRadius', 9, 'outerRadius', 12);
-[particleXY, contrasts] = particleDetection(images, params);
-% save('particleData.mat', 'particleXY', 'contrasts');
-disp(['Particles detection complete!']);
+if mod(params.template,2) ~=1
+    disp('Template parameter must be odd!');
+else
+    [particleXY, contrasts] = particleDetection(images, params);
+    % save('particleData.mat', 'particleXY', 'contrasts');
+    disp(['Particle detection complete!']);
+end
 
-
-
-%% Track and Label Particles
-
+% Track and Label Particles
+imSize = size(images);
 disp('Matching & Tracking Particles...');
-clusterBandwidth = 4;
+clusterBandwidth = 3;
 particleRC = cellfun(@fliplr, particleXY, 'UniformOutput', false);
 deltaRCTneg = num2cell(-1*deltaRCT,2);
 imSizeC = cell(imSize(3),1); imSizeC(:) = {imSize(1:2)};
 translatedRC = cellfun(@translateCoords, particleRC, deltaRCTneg, imSizeC, 'UniformOutput', false);
 matches = matchParticles(translatedRC, clusterBandwidth);
 particleList = trackParticles(particleRC, matches);
-disp(['Particle tracking completed.']);
+disp('Particle tracking completed.');
 
+% Remove one-offs
+dwellTs = cellfun(@length,particleList(:,1));
+particleList(dwellTs<1,:) = [];
 
 disp('Labeling particles...');
 colors = rand(length(particleList), 3);
@@ -69,9 +91,11 @@ colors = num2cell(colors,2);
 particleList = [particleList colors];
 labeledIms = labelIms(images, particleList);
 outName = 'Individual Particles';
-disp(['Labeling completed.']);
+disp('Labeling completed.');
 
-
+disp('printing particles...')
+writeAlignedTiff(labeledIms, deltaRCT, outName);
+disp('Printing completed.');
 
 %% Identify Particle Sites
 disp('Determining sites...')

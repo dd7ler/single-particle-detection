@@ -4,19 +4,16 @@ function ParticleContrasts= ComputeContrast(frame, PeakValues, peakLocations, in
 % ParticleContrasts= ComputeContrast(frame, PeakValues, peakLocations, innerRadius, outerRadius)
 
 medianVals = zeros(size(PeakValues));
-padF = padarray(frame,[outerRadius, outerRadius]);
 
-for i = 1:size(peakLocations,1)
-	rc = round(peakLocations(1,:));
-	r0 = rc(1) - outerRadius; if r0 < 1, r0 = 1; end;
-	r1 = rc(1) + outerRadius; if r1 > size(frame,1), r1 = size(frame,1); end;
-	c0 = rc(2) - outerRadius; if c0 < 1, c0 = 1; end;
-	c1 = rc(2) + outerRadius; if c1 > size(frame,2), c1 = size(frame,2); end;
-	region = frame(r0:r1, c0:c1);
-    [rr,cc] = meshgrid(c0:c1, r0:r1);
-    mask = ~(sqrt((rr-rc(1)).^2+(cc-rc(2)).^2)>=outerRadius | sqrt((rr-rc(1)).^2+(cc-rc(2)).^2)<=innerRadius);
-    overlap = region.*mask;
-    medianVals(i)= median(overlap(overlap~=0));
+for k = 1:size(peakLocations,1)
+	xy = round(peakLocations(k,:));
+	x0 = xy(1) - outerRadius; if x0 < 1, x0 = 1; end;
+	x1 = xy(1) + outerRadius; if x1 > size(frame,2), x1 = size(frame,2); end;
+	y0 = xy(2) - outerRadius; if y0 < 1, y0 = 1; end;
+	y1 = xy(2) + outerRadius; if y1 > size(frame,1), y1 = size(frame,1); end;
+	region = frame(y0:y1, x0:x1);
+    [xx,yy] = meshgrid(x0:x1, y0:y1);
+    mask = ~(sqrt((xx-xy(1)).^2+(yy-xy(2)).^2)>=outerRadius | sqrt((xx-xy(1)).^2+(yy-xy(2)).^2)<=innerRadius);
+    medianVals(k)= median(region(mask));
 end
-
 ParticleContrasts = PeakValues./medianVals;

@@ -1,12 +1,12 @@
-function [imagesHere sitesXY] = findSites(pList, bandWidth)
+function [imagesHere, sitesXY] = findSites(pList, bandWidth)
 % FINDSITES find particle sites. 
 % sites is a list of all unique particle locations found in an image. 
 % Every particle has a site, and particles can share the same 
 % site, but not at the same time. 
 % Bandwidth is how far a particle has to be from 
 % 	an existing site to be considered a new site.
-bwsq = bandWidth.^2;
-averageLocs = cellfun(@(x) sum(x,1)/length(x), pList(:,2), 'UniformOutput',false);
+bwsq = bandWidth^2;
+averageLocs = cellfun(@(x) sum(x,1)/size(x,1), pList(:,2), 'UniformOutput',false);
 
 % sites = {1}; % 
 imagesHere = pList(1,1);

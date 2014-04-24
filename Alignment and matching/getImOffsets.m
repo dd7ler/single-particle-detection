@@ -14,7 +14,7 @@ function deltaRCT = getImOffsets(images)
 % 	So, the third column is always 0 - for now...
 
 deltaRCT = zeros(size(images,3),3);
-for n = 2:size(images,3)-1
+for n = 2:size(images,3)
 	rc = phCorrAlign(images(:,:,1), images(:,:,n));
 	deltaRCT(n,:) = [rc 0];
 end
