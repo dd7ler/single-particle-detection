@@ -12,11 +12,11 @@ function particleList = trackParticles(rc, matches)
 % 	is an array of (r,c) particle coordinates in those images. 
 
 % Initialize with particles in the first images
-pList = ones(length(rc{1}),1); % All 
+pList = ones(size(rc{1},1),1); % All 
 particleList = [num2cell(pList) num2cell(rc{1},2)];
 
 % The look-up table is like an updated list of matches
-lut = repmat([1:length(rc{1})]',1,2); % dummy initialization lut
+lut = repmat([1:size(rc{1},1)]',1,2); % dummy initialization lut
 
 % matches gotta be sorted by the first column (previous indices)
 oneC = cell(size(matches));
@@ -36,7 +36,7 @@ for n = 2:length(rc)
         lut = sortrows(lut, 1); % gotta sort it
         particleList = [particleList; cell(length(unmatchedNames),2)];
     end
-    
+    lut
     for x = 1:size(lut,1)
 		particleList(lut(x,2),:) = {[particleList{lut(x,2),1} n], [particleList{lut(x,2),2}; rc{n}(lut(x,1),:)]};
     end

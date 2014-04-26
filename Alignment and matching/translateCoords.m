@@ -23,6 +23,10 @@ dimC(:) = {imDim};
 rotatedPts = cellfun(@rotateCtrlPt, pRCC, thetaC, dimC,'UniformOutput', false);
 rotatedPts = cell2mat(rotatedPts);
 % translate the points
-rcOut = rotatedPts + repmat(deltaRCT(:,1:2), n,1);
-
+if size(rotatedPts,1) == 0
+    rcOut = [1 1];
+    rcOut(1,:) = [];
+else
+    rcOut = rotatedPts + repmat(deltaRCT(:,1:2), n,1);
+end
 end
