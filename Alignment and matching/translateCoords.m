@@ -17,10 +17,10 @@ pRCC = num2cell(particleRC,2);
 xyC = cell(n,1);
 thetaC = cell(n,1);
 dimC = cell(n,1);
-xyC(:) = {deltaRCT(1:2,:)};
-thetaC(:) = {deltaRCT(3,:)};
+xyC(:) = {deltaRCT(1:2)};
+thetaC(:) = {deltaRCT(3)};
 dimC(:) = {imDim};
-rotatedPts = arrayfun(@rotateCtrlPt, pRCC, thetaC, dimC,'UniformOutput', false);
+rotatedPts = cellfun(@rotateCtrlPt, pRCC, thetaC, dimC,'UniformOutput', false);
 rotatedPts = cell2mat(rotatedPts);
 % translate the points
 rcOut = rotatedPts + repmat(deltaRCT(:,1:2), n,1);

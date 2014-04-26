@@ -34,7 +34,6 @@ for n = 2:length(pList)
 		d = sum((openLocs(k,:)-myCoords).^2); % square of distance to closest site
 		if d<bwsq
 			% Append to site openSites(k)
-			% sites(openSites(k)) = {[sites{openSites(k)} n]};
 			imagesHere(openSites(k)) = {[imagesHere{openSites(k)} myIms{:}]};
 			sitesXY(openSites(k)) = {[sitesXY{openSites(k)}; pList{n,2}]};
 			% disp(['appended to ' num2str(openSites(k)) '!']);

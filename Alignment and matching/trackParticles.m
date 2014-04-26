@@ -8,12 +8,12 @@ function particleList = trackParticles(rc, matches)
 % 
 % particleList is a cell array of all the particles detected in 
 % 	all the images. For particle n, particleList(n,1) is an array 
-% 	of which images that particle was in (i.e., [1 2 3]). particleList(n,2) is an array of (r,c) particle coordinates in those images.
+% 	of which images that particle was in (i.e., [1 2 3]). particleList(n,2)
+% 	is an array of (r,c) particle coordinates in those images. 
 
 % Initialize with particles in the first images
 pList = ones(length(rc{1}),1); % All 
 particleList = [num2cell(pList) num2cell(rc{1},2)];
-lastName = length(rc{1}); % Each tracked particle in the stack has a unique number. This is it's index in particleList
 
 % The look-up table is like an updated list of matches
 lut = repmat([1:length(rc{1})]',1,2); % dummy initialization lut
@@ -27,14 +27,18 @@ for n = 2:length(rc)
 	 % crazy indexing magic to update lut
 	[~, lutIdx, ~] = intersect(lut(:,1), matches{n-1}(:,1),'stable');
 	lut = [matches{n-1}(:,2) lut(lutIdx,2)];
+    lastName = size(particleList,1); % The highest particle name
 	unmatchedNames = lastName + (1:(size(rc{n},1)-size(matches{n-1},1))); % names to give to the unmatched particles
-	allNewIdx = 1:length(rc{n});
-	unmatched = setdiff(allNewIdx, lut(:,1)');
-	lut = [lut; [unmatched', unmatchedNames']];
-	lut = sortrows(lut, 1); % gotta sort it
-	particleList = [particleList; cell(length(unmatchedNames),2)];
-	for x = 1:length(lut)
+    
+    if ~isempty(unmatchedNames) % we need to make particleList longer. If not, every particle is accounted for
+        unmatched = setdiff(1:size(rc{n},1), lut(:,1)');
+        lut = [lut; [unmatched', unmatchedNames']];
+        lut = sortrows(lut, 1); % gotta sort it
+        particleList = [particleList; cell(length(unmatchedNames),2)];
+    end
+    
+    for x = 1:length(lut)
 		particleList(lut(x,2),:) = {[particleList{lut(x,2),1} n], [particleList{lut(x,2),2}; rc{n}(lut(x,1),:)]};
-	end
-	lastName = max(lut(:,2)); % The highest particle name
+    end
+    size(particleList);
 end

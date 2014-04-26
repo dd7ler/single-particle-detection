@@ -20,6 +20,8 @@ function [particleXY, contrasts] = particleDetection(images, params)
 %  params.template must be odd (it won't error out, but it may give
 %  unexpected results).
 
+dMin = 2; % minimum distance to be considered a different particle
+
 % SIFT key point detection
 particleXY = cell(size(images,3),1);
 contrasts = cell(size(images,3),1);
@@ -36,10 +38,14 @@ for n = 1:size(images,3)
     myParticles = xy(indices,:);
 	myContrasts = ComputeContrast(images(:,:,n), coefPeaks, myParticles, params.innerRadius, params.outerRadius);
     index2 = myContrasts>params.contrastTh;
-    contrasts{n} = myContrasts(index2);
-    particleXY{n} = myParticles(index2,:);
-%     particleXY{n} = myParticles;
-%     contrasts = myContrasts;
+    contrasts2 = myContrasts(index2);
+    myParticles2 = myParticles(index2,:);
+    
+    duplicates = removeDuplicates(myParticles2',dMin);
+    myParticles2(duplicates,:) = [];
+    contrasts2(duplicates) = [];
+    contrasts{n} = contrasts2;
+    particleXY{n} = myParticles2;
 end
 
 end
