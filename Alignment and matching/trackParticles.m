@@ -37,7 +37,7 @@ for n = 2:length(rc)
         particleList = [particleList; cell(length(unmatchedNames),2)];
     end
     
-    for x = 1:length(lut)
+    for x = 1:size(lut,1)
 		particleList(lut(x,2),:) = {[particleList{lut(x,2),1} n], [particleList{lut(x,2),2}; rc{n}(lut(x,1),:)]};
     end
     size(particleList);

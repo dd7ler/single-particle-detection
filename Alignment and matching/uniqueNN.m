@@ -4,8 +4,8 @@ function pairs = uniqueNN(fieldPoints, queryPoints)
 % the index of fieldPoints and the second column is the index of queryPoints.
 % Derin Sevenler, February 2014. Derin@bu.edu
 
-numX = length(fieldPoints);
-numQP = length(queryPoints);
+numX = size(fieldPoints,1);
+numQP = size(queryPoints,1);
 xid = 1:numX;
 qpid = 1:numQP;
 

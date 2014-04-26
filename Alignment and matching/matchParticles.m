@@ -19,17 +19,19 @@ function matches = matchParticles(particles,clusterBandwidth)
 % 	MeanShiftCluster (clustering).
 
 matches = cell(size(particles)-1);
-for n = 1:length(particles)-1
+for n = 1:(length(particles)-1)
 	p1 = particles{n};
 	p2 = particles{n+1};
 
 	% find nearest neighbors. Query points in image n, field points in image n+1
-	p2origL = length(p2);
-	p2padded = [p2; -1e4+rand((length(p1)- length(p2) + 2), 2)]; % p2 must have at least 2 more points than p1
+	p2origL = size(p2,1);
+	p2padded = [p2; -1e4+rand((size(p1,1)- size(p2,1) + 2), 2)]; % p2 must have at least 2 more points than p1
+
 	pairs = uniqueNN(p2padded, p1);
 	pairs(pairs(:,1)>p2origL,:) = []; % eliminate any pairs made to pad points
 
 	% find neighbors which correspond to matches.
+
 	vecs = p2(pairs(:,1),:)- p1(pairs(:,2),:);
 	% plot(vecs(:,1), vecs(:,2), '*b');
 	[clustCent,~,clustMembsCell] = MeanShiftCluster(vecs',clusterBandwidth); % vecs input must be mdim x npoints
