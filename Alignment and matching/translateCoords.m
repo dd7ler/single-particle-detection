@@ -14,10 +14,8 @@ function rcOut = translateCoords(particleRC, deltaRCT, imDim)
 % rotate the points
 n = size(particleRC,1); % number of particles
 pRCC = num2cell(particleRC,2);
-xyC = cell(n,1);
 thetaC = cell(n,1);
 dimC = cell(n,1);
-xyC(:) = {deltaRCT(1:2)};
 thetaC(:) = {deltaRCT(3)};
 dimC(:) = {imDim};
 rotatedPts = cellfun(@rotateCtrlPt, pRCC, thetaC, dimC,'UniformOutput', false);

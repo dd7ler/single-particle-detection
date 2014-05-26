@@ -1,4 +1,4 @@
-function [particleXY, contrasts] = particleDetection(images, params)
+function [particleXY, contrasts, correlations] = particleDetection(images, params, posOnly)
 % SIFTParticles Get particles detected in the image.
 % 
 % First, Key Points are extracted using Scale-Invariant Feature Transform. 
@@ -7,12 +7,15 @@ function [particleXY, contrasts] = particleDetection(images, params)
 % 
 % This script incorporates parallel processing if you have matlab pool open
 %   (i.e., run 'matlabpool open' before and 'matlabpool close' after) 
-% [xy, contrasts] = particleDetection(images, params)
+% [xy, contrasts] = particleDetection(images, params, posOnly)
 % images is a double matrix with size(images, 3) = n, where n is the 
 % 	number of images.
 % params is a structure with the following fields:
 % 	(SIFT) IntensityThresh, EdgeTh
-% 	(Gaussian filtering) gaussianTh, templateSize, SD, innerRadius, outerRadius 
+% 	(Gaussian filtering) gaussianTh, templateSize, SD, innerRadius,
+% 	outerRadius, contrastTh
+% posOnly should be set to 'true' if the particles all have positive
+% contrast
 % 
 % It may be initialized like this (these are typical values):
 % defaultParams = struct('IntensityThresh', 0.6, 'EdgeTh', 2, 'gaussianTh',
@@ -31,19 +34,31 @@ for n = 1:size(images,3)
 	kpdata = getParticles(images(:,:,n), params.IntensityThresh, params.EdgeTh);
 	xy = kpdata.VKPs(1:2,:)';
 	peaks = kpdata.Peaks;
-	% corrCoefs = gaussianfilter(images(:,:,n), xy, params.templateSize, params.SD);
 	correlations = corrCoefs(images(:,:,n), xy, gfilter);
-	indices = correlations>params.gaussianTh;
+    if posOnly
+       indices = correlations>params.gaussianTh;
+    else
+        indices = correlations>params.gaussianTh | correlations< -1*params.gaussianTh;
+    end
     coefPeaks = peaks(indices);
     myParticles = xy(indices,:);
+    correlations = correlations(indices);
+    
 	myContrasts = ComputeContrast(images(:,:,n), coefPeaks, myParticles, params.innerRadius, params.outerRadius);
-    index2 = myContrasts>params.contrastTh;
+    if posOnly
+        index2 = myContrasts>params.contrastTh;
+    else
+        index2 = myContrasts>params.contrastTh | myContrasts< 1+((params.contrastTh-1)*-1);
+    end
     contrasts2 = myContrasts(index2);
     myParticles2 = myParticles(index2,:);
+    correlations = correlations(index2);
     
     duplicates = removeDuplicates(myParticles2',dMin);
     myParticles2(duplicates,:) = [];
     contrasts2(duplicates) = [];
+    correlations(duplicates) = [];
+    
     contrasts{n} = contrasts2;
     particleXY{n} = myParticles2;
 end

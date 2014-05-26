@@ -15,6 +15,6 @@ function deltaRCT = getImOffsets(images)
 
 deltaRCT = zeros(size(images,3),3);
 for n = 2:size(images,3)
-	rc = phCorrAlign(images(:,:,1), images(:,:,n));
+    rc = phCorrAlign(images(:,:,1), images(:,:,n));
 	deltaRCT(n,:) = [rc 0];
 end
