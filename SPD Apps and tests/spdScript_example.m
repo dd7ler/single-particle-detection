@@ -56,7 +56,7 @@ deltaRCT = getImOffsets(images);
 disp(['Alignment completed.']);
 
 
-
+imc2 = imcrop(:,:,1:10);
 %% Detect particles
 params = struct('IntensityThresh', .8, 'EdgeTh', 2, 'gaussianTh', 0.3, ...
 	'template', 5, 'SD', 1.0, 'innerRadius', 4, 'outerRadius', 6, 'contrastTh', 1.007);
@@ -64,13 +64,13 @@ disp('Detecting Particles...');
 if mod(params.template,2) ~=1
     disp('Template parameter must be odd!');
 else
-    [particleXY, contrasts] = particleDetection(images, params);
+    [particleXY, contrasts] = particleDetection(imc2, params);
     % save('particleData.mat', 'particleXY', 'contrasts');
     disp(['Particle detection complete!']);
 end
 
 % Track and Label Particles
-imSize = size(images);
+imSize = size(imc2);
 disp('Matching & Tracking Particles...');
 clusterBandwidth = 3;
 particleRC = cellfun(@fliplr, particleXY, 'UniformOutput', false);
@@ -89,7 +89,7 @@ disp('Labeling particles...');
 colors = rand(length(particleList), 3);
 colors = num2cell(colors,2);
 particleList = [particleList colors];
-labeledIms = labelIms(images, particleList);
+labeledIms = labelIms(imc2, particleList);
 outName = 'Individual Particles';
 disp('Labeling completed.');
 
@@ -107,7 +107,7 @@ disp('Labeling sites...');
 colors = rand(length(sitesXY), 3);
 colors = num2cell(colors,2);
 sitesList = [imagesHere', sitesXY, colors];
-registeredIms = getBWAlignedStack(images, -1*deltaRCT);
+registeredIms = getBWAlignedStack(imc2, -1*deltaRCT);
 labeledIms = labelIms(registeredIms, sitesList);
 outName = 'Sites';
 disp(['Labeling completed at ' num2str(round(toc)) ' seconds.']);

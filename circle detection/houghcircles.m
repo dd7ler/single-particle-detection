@@ -89,14 +89,15 @@ Rmap(Rmap<minR | Rmap>maxR) = 0;
 % For each edge pixel, increment the corresponding elements in the Hough
 % array. (Ex Ey) are the coordinates of edge pixels and (Cy Cx R) are the
 % centers and radii of the corresponding circles.
-edgeim = im;% edge(im, 'canny', [0.15 0.2]);
+edgeim = edge(im, 'canny', [0.05 0.15]);
+
 [Ey, Ex] = find(edgeim);
 [Cy, Cx, R] = find(Rmap);
 for i = 1:length(Ex);
   Index = sub2ind(size(hough), Cy+Ey(i)-1, Cx+Ex(i)-1, R-minR+1);
   hough(Index) = hough(Index)+1;
+  progressbar(i/length(Ex))
 end
-
 % Collect candidate circles.
 % Due to digitization, the number of detectable edge pixels are about 90%
 % of the calculated perimeter.
