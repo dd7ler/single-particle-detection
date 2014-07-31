@@ -16,9 +16,9 @@ sp = round(r/2);
 c = padarray(c,[sp sp],median(im(mask)));
 centroid = centroid+sp;
 
-r_range = (centroid(2)-r):(centroid(2)+r)
+r_range = (centroid(2)-r):(centroid(2)+r);
 %max(centroid(2)-r, 1):min(centroid(2)+r,size(im,1));
-c_range = (centroid(1)-r):(centroid(1)+r)
+c_range = (centroid(1)-r):(centroid(1)+r);
 %max(centroid(1)-r, 1):min(centroid(1)+r,size(im,2));
 cropped = c(r_range, c_range);
 % figure; imshow(cropped,[]);

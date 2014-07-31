@@ -1,6 +1,7 @@
 function I2 = imrescale(I, minVal, maxVal,bitSize)
 %IMRESCALE Rescale an image linearly between minVal and maxVal.
-%   Imaga values less than minVal are rescaled to 0 and values greater than
+%   I2 = IMRESCALE(I, minVal, maxVal, bitSize)
+%   Image values less than minVal are rescaled to 0 and values greater than
 %   maxVal are rescaled to bitSize, with all intermediate values scaled
 %   linearly between minVal and maxVal to 0 and bitSize.
 % 

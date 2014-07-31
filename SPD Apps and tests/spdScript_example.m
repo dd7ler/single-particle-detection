@@ -59,7 +59,8 @@ disp(['Alignment completed.']);
 imc2 = imcrop(:,:,1:10);
 %% Detect particles
 params = struct('IntensityThresh', .8, 'EdgeTh', 2, 'gaussianTh', 0.3, ...
-	'template', 5, 'SD', 1.0, 'innerRadius', 4, 'outerRadius', 6, 'contrastTh', 1.007);
+	'template', 5, 'SD', 1.0, 'innerRadius', 4, 'outerRadius', 6, 'contrastTh', 1.007, 'Polarization', false);
+
 disp('Detecting Particles...');
 if mod(params.template,2) ~=1
     disp('Template parameter must be odd!');

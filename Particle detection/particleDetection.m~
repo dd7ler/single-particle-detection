@@ -26,14 +26,14 @@ dMin = 2; % minimum distance to be considered a different particle
 
 % SIFT key point detection
 particleXY = cell(length(images),1);
-contrasts = cell(length(images),1);
+contrasts = cell(length(images,3),1);
 gfilter=fspecial('gaussian',[params.template params.template], 1);
 gfilter=gfilter-mean(gfilter(:));
 for n = 1:size(images,3)
-	kpdata = getParticles(images{n}, params.IntensityThresh, params.EdgeTh);
+	kpdata = getParticles(images(:,:,n), params.IntensityThresh, params.EdgeTh);
 	xy = kpdata.VKPs(1:2,:)';
 	peaks = kpdata.Peaks;
-	correlations = corrCoefs(images{n}, xy, gfilter);
+	correlations = corrCoefs(images(:,:,n), xy, gfilter);
     if params.polarization
         indices = correlations>params.gaussianTh | correlations< -1*params.gaussianTh;
     else
@@ -43,8 +43,8 @@ for n = 1:size(images,3)
     myParticles = xy(indices,:);
     correlations = correlations(indices);
     
-	myContrasts = ComputeContrast(images{n}, coefPeaks, myParticles, params.innerRadius, params.outerRadius);
-    if isfield(params,'polarization') && params.polarization
+	myContrasts = ComputeContrast(images(:,:,n), coefPeaks, myParticles, params.innerRadius, params.outerRadius);
+    if params.polarization
         index2 = myContrasts>params.contrastTh | myContrasts< 1+((params.contrastTh-1)*-1);
     else
         index2 = myContrasts>params.contrastTh;

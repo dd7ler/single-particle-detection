@@ -90,13 +90,13 @@ Rmap(Rmap<minR | Rmap>maxR) = 0;
 % array. (Ex Ey) are the coordinates of edge pixels and (Cy Cx R) are the
 % centers and radii of the corresponding circles.
 edgeim = edge(im, 'canny', [0.05 0.15]);
+% figure; imshow(edgeim)
 
 [Ey, Ex] = find(edgeim);
 [Cy, Cx, R] = find(Rmap);
 for i = 1:length(Ex);
   Index = sub2ind(size(hough), Cy+Ey(i)-1, Cx+Ex(i)-1, R-minR+1);
   hough(Index) = hough(Index)+1;
-  progressbar(i/length(Ex))
 end
 % Collect candidate circles.
 % Due to digitization, the number of detectable edge pixels are about 90%
@@ -107,7 +107,7 @@ for radius = minR:maxR   % Loop from minimal to maximal radius
   slice = hough(:,:,radius-minR+1);  % Offset by minR
   twoPiR = twoPi*radius;
   slice(slice<twoPiR*thresh) = 0;  % Clear pixel count < 0.9*2*pi*R*thresh
-  [y x count] = find(slice);
+  [y x, count] = find(slice);
   circles = [circles; [x-maxR, y-maxR, radius*ones(length(x),1), count/twoPiR]];
 end
 
