@@ -29,12 +29,13 @@ particleXY = cell(length(images),1);
 contrasts = cell(length(images),1);
 gfilter=fspecial('gaussian',[params.template params.template], 1);
 gfilter=gfilter-mean(gfilter(:));
-for n = 1:size(images,3)
+progressbar('Detecting Particles...');
+for n = 1:length(images)
 	kpdata = getParticles(images{n}, params.IntensityThresh, params.EdgeTh);
 	xy = kpdata.VKPs(1:2,:)';
 	peaks = kpdata.Peaks;
 	correlations = corrCoefs(images{n}, xy, gfilter);
-    if params.polarization
+    if isfield(params,'polarization') && params.polarization
         indices = correlations>params.gaussianTh | correlations< -1*params.gaussianTh;
     else
         indices = correlations>params.gaussianTh;
@@ -60,6 +61,8 @@ for n = 1:size(images,3)
     
     contrasts{n} = contrasts2;
     particleXY{n} = myParticles2;
+    
+    progressbar(n/length(images));
 end
 
 end
