@@ -8,7 +8,6 @@ function images =  loadZoirayImages(imageDir, nameRegEx, imageVar)
 
 fList = regexpdir(imageDir, nameRegEx);
 
-
 % load the first image, so we can preallocate 'images'
 if length(fList) == 0
     disp('Sorry, I didn''t find any images that match that regular expression.');

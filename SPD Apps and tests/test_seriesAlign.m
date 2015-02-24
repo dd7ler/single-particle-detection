@@ -60,9 +60,9 @@ disp(['Alignment completed at ' num2str(round(toc)) ' seconds.']);
 
 
 disp('Detecting Particles...');
-params = struct('IntensityThresh', 0.6, 'EdgeTh', 2, 'gaussianTh', 0.1, ...
+params = struct('ContrastTh', 0.6, 'EdgeTh', 2, 'gaussianTh', 0.1, ...
 	'templateSize', 9, 'SD', 1.5, 'innerRadius', 9, 'outerRadius', 12);
-[particleXY, contrasts] = particleDetection(images, params);
+[particleXY, contrasts] = particleDetection(ims, params);
 % save('particleData.mat', 'particleXY', 'contrasts');
 disp(['Particles Detected at ' num2str(round(toc)) ' seconds.']);
 

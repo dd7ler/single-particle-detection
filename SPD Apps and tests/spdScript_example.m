@@ -20,7 +20,7 @@ imageVar = 'data';
 
 disp('Loading Images...');
 rawIms = loadZoirayImages(imDir, nameRegEx, imageVar);
-disp(['Loaded ' num2str(size(images,3)) ' images.']);
+disp(['Loaded ' num2str(size(rawIms,3)) ' images.']);
 save('images.mat','rawIms');
 
 

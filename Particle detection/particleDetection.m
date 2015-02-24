@@ -1,4 +1,4 @@
-function [particleXY, contrasts, correlations] = particleDetection(images, params)
+function [particleXY, contrasts, correlations] = particleDetection(imsIn, params)
 % SIFTParticles Get particles detected in the image.
 % 
 % First, Key Points are extracted using Scale-Invariant Feature Transform. 
@@ -22,6 +22,9 @@ function [particleXY, contrasts, correlations] = particleDetection(images, param
 %  params.template must be odd (it won't error out, but it may give
 %  unexpected results).
 
+for n = 1:size(imsIn,3)
+    images{n} = imsIn(:,:,n);
+end
 dMin = 2; % minimum distance to be considered a different particle
 
 % SIFT key point detection

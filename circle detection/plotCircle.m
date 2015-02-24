@@ -1,6 +1,9 @@
 function plotCircle(im, centroid, r)
-% draw a circle
-figure; imshow(im,[]);
+% plot a circle on an image in a MATLAB figure.
+% PLOTCIRCLE(im, centroid, r) plots a red circle in im, in red.
+
+figure; 
+imshow(im,[]);
 hold on;
 x = centroid(1) - r;
 y = centroid(2) - r;

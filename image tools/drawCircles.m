@@ -1,7 +1,7 @@
 function labeledIm = drawCircles(I, XY, r, color)
-% LABELPARTICLES draw circles in images
+% DRAWCIRCLES draw circles in images
 % 
-% labeledIm = drawCircles(I, XY, r, color)
+% labeledIm = DRAWCIRCLES(I, XY, r, color)
 % 
 % I must be an RGB image matrix: It has type uint8 or 
 % 	uint16, and has dimensions (r,c,3).
